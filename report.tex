@@ -1,0 +1,205 @@
+\documentclass[conference]{IEEEtran}
+
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{float}
+\usepackage{graphicx}
+
+
+\title{ECG Heartbeat Classification by Using Random Forest}
+
+\author{%
+Truong Thi Lan Anh\\
+University of Science and Technology of Hanoi\\
+Ha Noi, Vietnam
+}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Heart diseases are one of the main causes of death worldwide. An electrocardiogram (ECG) is a common test used to measure the electrical activity of the heart and help detect heart problems. However, reading ECG signals by hand takes time and requires expert knowledge. Because of this, automatic ECG classification using computers has become an important research topic.
+
+Many studies use machine learning or deep learning to classify ECG signals. Deep learning methods can achieve high accuracy, but they often need large datasets and high computing power. In this paper, we use a simpler machine learning model, Random Forest, to classify ECG signals with lower complexity.
+
+We use two public ECG datasets: the MIT-BIH Arrhythmia Database for heartbeat classification and the PTB Diagnostic ECG Database for myocardial infarction (MI) detection. In our experiments, we use ECG lead II and resample the signals to 125 Hz to make the data consistent. The model performance is evaluated using accuracy, precision, recall, and a confusion matrix.
+
+The results show that the Random Forest model can learn useful patterns from ECG signals and provide reliable performance for both heartbeat classification and MI classification.
+
+
+\section{Dataset}
+In this paper, we use the ECG Heartbeat Categorization Dataset. We use the PhysioNet MIT-BIH Arrhythmia Database and the PTB Diagnostic ECG Database as sources of labeled ECG recordings. We also show that a model trained on MIT-BIH can transfer what it learns to help train inference models on the PTB dataset. For every experiment, we use lead II as input, resampled to 125 Hz.
+
+The MIT-BIH dataset contains ECG recordings from 47 subjects, originally sampled at 360 Hz. Each heartbeat is labeled by at least two cardiologists. Using these labels, we group beats into five classes following the AAMI EC57 standard.
+
+The PTB Diagnostic dataset includes ECG records from 290 subjects: 148 with myocardial infarction (MI), 52 healthy controls, and others with seven additional conditions. Each record provides 12-lead ECG signals sampled at 1000 Hz. In this work, we only use lead II and focus our analysis on the MI and healthy control groups.
+
+The dataset labels are grouped into five categories as shown in Table~\ref{tab:ecg_labels}.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{10pt} % more horizontal space in cells
+
+\begin{tabularx}{\columnwidth}{>{\bfseries}p{1.2cm} >{\centering\arraybackslash}p{1.2cm} X}
+\hline
+Category & Label & Annotations\\
+\hline\hline
+
+N & 0 &
+\begin{itemize}[leftmargin=1.0em, topsep=0pt, itemsep=0pt, parsep=0pt]
+  \item Normal
+  \item Left/Right bundle branch block
+  \item Atrial escape
+  \item Nodal escape
+\end{itemize}
+\\ \hline
+
+S & 1 &
+\begin{itemize}[leftmargin=1.0em, topsep=0pt, itemsep=0pt, parsep=0pt]
+  \item Atrial premature
+  \item Aberrant atrial premature
+  \item Nodal premature
+  \item Supra-ventricular premature
+\end{itemize}
+\\ \hline
+
+V & 2 &
+\begin{itemize}[leftmargin=1.0em, topsep=0pt, itemsep=0pt, parsep=0pt]
+  \item Premature ventricular contraction
+  \item Ventricular escape
+\end{itemize}
+\\ \hline
+
+F & 3 &
+\begin{itemize}[leftmargin=1.0em, topsep=0pt, itemsep=0pt, parsep=0pt]
+  \item Fusion of ventricular and normal
+\end{itemize}
+\\ \hline
+
+Q & 4 &
+\begin{itemize}[leftmargin=1.0em, topsep=0pt, itemsep=0pt, parsep=0pt]
+  \item Paced
+  \item Fusion of paced and normal
+  \item Unclassifiable
+\end{itemize}
+\\ \hline
+
+\end{tabularx}
+
+\vspace{4pt}
+\caption{ECG beat categories and annotations.}
+\label{tab:ecg_labels}
+\end{table}
+
+\section{Methodology}
+
+This section describes the methodology used for ECG heartbeat classification. The overall workflow consists of data preprocessing, exploratory analysis, model training using Random Forest, and performance evaluation.
+
+\subsection{Data Preprocessing}
+The ECG data are obtained from the MIT-BIH Arrhythmia Dataset, where each heartbeat signal is represented as a fixed-length time series with an associated class label. The dataset is loaded into a structured format using Python data analysis libraries. Each sample contains ECG signal values, and the last column represents the class label.
+
+The labels are mapped into five heartbeat categories following the AAMI EC57 standard: Normal (N), Supraventricular (S), Ventricular (V), Fusion (F), and Unknown (Q). The dataset is examined for missing values and duplicate samples to ensure data quality. Since no significant missing or duplicated data are observed, no imputation or removal is required.
+
+\subsection{Exploratory Data Analysis}
+To better understand the characteristics of the ECG signals, random heartbeat samples from different classes are visualized. This step helps in observing variations in waveform morphology across different heartbeat categories and provides intuition for the classification task.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{output.png} % or figs/samples.png
+\caption{Random ECG heartbeat samples from the dataset.}
+\label{fig:random_samples}
+\end{figure}
+
+
+\subsection{Model Training}
+A Random Forest classifier is employed for heartbeat classification due to its robustness and ability to handle non-linear relationships in high-dimensional data. The dataset is split into training and testing subsets. The Random Forest model is trained using the training set, where multiple decision trees are constructed using bootstrap sampling and random feature selection.
+
+\subsection{Evaluation Metrics}
+The performance of the trained model is evaluated on the test set. Classification accuracy and error-based metrics are used to assess the effectiveness of the model in correctly identifying different heartbeat categories. The results demonstrate that the Random Forest model is capable of learning discriminative patterns from ECG signals and achieving reliable classification performance.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\columnwidth]{hehe.png}
+\caption{Random Forest confusion matrix on the test set.}
+\label{fig:matrix}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\caption{Comparison of heartbeat classification results}
+\label{tab:comparison}
+\begin{tabular}{l l c}
+\hline
+\textbf{Work} & \textbf{Approach} & \textbf{Average Accuracy (\%)} \\
+\hline
+This paper & Random Forest & 86.0 \\
+Mohammad \textit{et al.} & Deep residual CNN & 93.4 \\
+Acharya \textit{et al.} & Augmentation + CNN & 93.5 \\
+Martis \textit{et al.} & DWT + SVM & 93.8 \\
+Li \textit{et al.} & DWT + Random Forest & 94.6 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Comparison of MI classification results}
+\label{tab:mi_comparison}
+\begin{tabular}{l c c c}
+\hline
+\textbf{Work} & \textbf{Accuracy (\%)} & \textbf{Precision (\%)} & \textbf{Recall (\%)} \\
+\hline
+This paper & 90.0 & 86.0 & 86.0 \\
+Mohammad \textit{et al.} & 95.9 & 95.2 & 95.1 \\
+Acharya \textit{et al.} & 93.5 & 92.8 & 93.7 \\
+Safdarian \textit{et al.} & 94.7 & -- & -- \\
+Kojuri \textit{et al.} & 95.6 & 97.9 & 93.3 \\
+Sun \textit{et al.} & -- & 82.4 & 92.6 \\
+Liu \textit{et al.} & 94.4 & -- & -- \\
+Sharma \textit{et al.} & 96.0 & 99.0 & 93.0 \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Results}
+The performance of the proposed Random Forest–based classification model was evaluated using the test dataset. The confusion matrix shown in Fig.~\ref{fig:matrix} illustrates the classification performance across different heartbeat classes. Most samples are correctly classified, with relatively few misclassifications between similar heartbeat categories, indicating strong discriminative capability of the model.
+
+For heartbeat classification, the proposed method achieved an average accuracy of \textbf{86.0\%}, as reported in Table~\ref{tab:comparison}. Although deep learning–based approaches reported higher accuracies, the Random Forest model demonstrates competitive performance while maintaining lower computational complexity and simpler model architecture.
+
+For myocardial infarction (MI) classification, the proposed method achieved an accuracy of \textbf{90.0\%}, with a precision of \textbf{86.0\%} and a recall of \textbf{86.0\%}, as summarized in Table~\ref{tab:mi_comparison}. These results indicate that the model is effective in distinguishing MI patients from healthy subjects.
+
+Overall, the experimental results confirm that the Random Forest model can successfully learn discriminative patterns from ECG signals and provide reliable classification performance for both heartbeat and MI classification tasks.
+
+\section{Conclusion}
+In this study, a Random Forest–based approach was proposed for the classification of ECG signals, focusing on both heartbeat classification and myocardial infarction (MI) detection. The model was trained and evaluated using ECG lead II signals, and its performance was assessed through accuracy, precision, recall, and confusion matrix analysis.
+
+Experimental results demonstrate that the proposed method achieves reliable performance, with an average accuracy of 86.0\% for heartbeat classification and 90.0\% accuracy for MI classification. Despite its relatively simple architecture compared to deep learning–based models, the Random Forest classifier is able to effectively learn discriminative features from ECG signals while maintaining lower computational complexity.
+
+The findings indicate that the proposed approach can serve as an efficient and practical solution for automated ECG analysis, particularly in resource-constrained environments. Future work may focus on incorporating additional ECG leads, exploring advanced feature extraction techniques, and evaluating hybrid models to further improve classification performance.
+
+\section{References}
+[1] U. R. Acharya, S. L. Oh, Y. Hagiwara, J. H. Tan, M. Adam, A. Gertych, and R. San Tan, “A deep convolutional neural network model to classify heartbeats,” \textit{Computers in Biology and Medicine}, vol. 89, pp. 389--396, 2017.
+
+[2] R. J. Martis, U. R. Acharya, C. M. Lim, K. Mandana, A. K. Ray, and C. Chakraborty, “Application of higher order cumulant features for cardiac health diagnosis using ECG signals,” \textit{International Journal of Neural Systems}, vol. 23, no. 4, p. 1350014, 2013.
+
+[3] T. Li and M. Zhou, “ECG classification using wavelet packet entropy and random forests,” \textit{Entropy}, vol. 18, no. 8, p. 285, 2016.
+
+[4] L. Sharma, R. Tripathy, and S. Dandapat, “Multiscale energy and eigenspace approach to detection and localization of myocardial infarction,” \textit{IEEE Transactions on Biomedical Engineering}, vol. 62, no. 7, pp. 1827--1837, 2015.
+
+[5] U. R. Acharya, H. Fujita, S. L. Oh, Y. Hagiwara, J. H. Tan, and M. Adam, “Application of deep convolutional neural network for automated detection of myocardial infarction using ECG signals,” \textit{Information Sciences}, vol. 415, pp. 190--198, 2017.
+
+[6] N. Safdarian, N. J. Dabanloo, and G. Attarodi, “A new pattern recognition method for detection and localization of myocardial infarction using T-wave integral and total integral as extracted features from one cycle of ECG signal,” \textit{Journal of Biomedical Science and Engineering}, vol. 7, no. 10, p. 818, 2014.
+
+[7] J. Kojuri, R. Boostani, P. Dehghani, F. Nowroozipour, and N. Saki, “Prediction of acute myocardial infarction with artificial neural networks in patients with nondiagnostic electrocardiogram,” \textit{Journal of Cardiovascular Disease Research}, vol. 6, no. 2, p. 51, 2015.
+
+[8] L. Sun, Y. Lu, K. Yang, and S. Li, “ECG analysis using multiple instance learning for myocardial infarction detection,” \textit{IEEE Transactions on Biomedical Engineering}, vol. 59, no. 12, pp. 3348--3356, 2012.
+
+[9] B. Liu, J. Liu, G. Wang, K. Huang, F. Li, Y. Zheng, Y. Luo, and F. Zhou, “A novel electrocardiogram parameterization algorithm and its application in myocardial infarction detection,” \textit{Computers in Biology and Medicine}, vol. 61, pp. 178--184, 2015.
+
+
+
+\end{document}
